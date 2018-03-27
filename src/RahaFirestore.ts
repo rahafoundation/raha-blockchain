@@ -12,11 +12,16 @@
 import * as firebase from 'firebase';
 import 'firebase/firestore';
 
+let db;
+
 /**
  * Retrieve an instance of the Firestore db.
  */
-function getFirebaseDb() {
-    return firebase.initializeApp(require('./config/firebase.config.json')).firestore();
+function getDb() {
+    if (!db) {
+        db = firebase.initializeApp(require('./config/firebase.config.json')).firestore();
+    }
+    return db;
 }
 
 /**
@@ -30,7 +35,7 @@ async function get(collection: firebase.firestore.CollectionReference) {
  * Return the Operations collection.
  */
 function operationsCollection() {
-    return getFirebaseDb().collection('operations');
+    return getDb().collection('operations');
 }
 
 /**
