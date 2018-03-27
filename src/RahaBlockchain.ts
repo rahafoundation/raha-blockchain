@@ -76,12 +76,14 @@ function stellarTxToBlockMetaData(stellarTx): BlockMetaData|void {
 /**
  * Return all transactions associated with the Raha account from the Stellar blockchain ordered chronologically.
  * TODO: Documentation doesn't specify the current page limit. Add paging support.
+ * Update: Default limit is 10, max is 200. https://stellar.stackexchange.com/a/792/1187.
  */
 async function getTransactions() {
     const horizonServer = new StellarSdk.Server(STELLAR_ENDPOINT);
     return (await horizonServer.transactions()
         .forAccount(RAHA_IO_STELLAR_PUBLIC_KEY)
         .order('desc')
+        .limit(200)
         .call()).records;
 }
 
