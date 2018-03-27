@@ -2,7 +2,6 @@
   "name": "raha-blockchain",
   "version": "0.0.1",
   "description": "Blockchain scripts for Raha.",
-  "main": "built/index.js",
   "author": "Raha Foundation",
   "license": "Apache-2.0",
   "private": false,
@@ -15,8 +14,10 @@
     "url": "^0.11.0"
   },
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js"
+    "use-prod-db": "cp src/config/firebase.prod.json src/config/firebase.config.json",
+    "use-test-db": "cp src/config/firebase.test.json src/config/firebase.config.json",
+    "build": "tsc && mkdir -p dist/config && cp src/config/firebase.config.json dist/config/firebase.config.json",
+    "test": "node dist/index.js"
   },
   "devDependencies": {
     "@firebase/app-types": "^0.1.2",
