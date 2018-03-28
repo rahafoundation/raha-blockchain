@@ -5,6 +5,7 @@ import StellarSdk from 'stellar-sdk';
 import * as url from 'url';
 
 import { IPFS_ENDPOINT, IPFS_SHA_256_LEN_32_PREFIX, STELLAR_ENDPOINT, RAHA_IO_STELLAR_PUBLIC_KEY } from './constants';
+import { BLOCKCHAIN_VERSION_NO, Block, StellarMetadata } from './schema';
 
 /**
  * Note: TransactionMetadata is undocumented and quite ugly to interact with. Mark had to look into the SDK source to do
@@ -50,17 +51,11 @@ function memoToMultiHash(memoHashB64) {
     return bs58.encode(Uint8Array.from(resBytes));
 }
 
-interface BlockMetaData {
-    readonly multiHash: string,
-    readonly timeStr: string,
-    readonly stellarTxId: string,
-}
-
 /**
  * Transform a Stellar transaction into an object describing the Raha blockchain block to which it points.
  * Return null if the transaction does not describe a block.
  */
-function stellarTxToBlockMetaData(stellarTx): BlockMetaData|void {
+function stellarTxToBlockMetaData(stellarTx): StellarMetadata|void {
     const transactionMeta = getTransactionMetaFromTransaction(stellarTx);
     const blockName = getBlockNameFromTransactionMeta(transactionMeta);
     if (!blockName || !blockName.startsWith('block-')) {
@@ -92,23 +87,42 @@ async function getTransactions() {
  */
 async function getBlockMetadata() {
     const transactions = await getTransactions();
-    return transactions.map(stellarTxToBlockMetaData).filter(x => x) as Array<BlockMetaData>;
+    return transactions.map(stellarTxToBlockMetaData).filter(x => x) as Array<StellarMetadata>;
+}
+
+async function getBlockFromBlockMetadata(metadata): Promise<Block> {
+    return {
+        metadata: metadata,
+        data: await (await fetch(url.resolve(IPFS_ENDPOINT, metadata.multiHash))).json(),
+    };
 }
 
 /**
- * Return the entire Raha blockchain as a list of objects ordered chronologically.
+ * Filter blocks which don't belong to the latest version of the blockchain.
  */
-async function getBlocks() {
-    const blockMetaData = await getBlockMetadata();
-    const multiHashes = blockMetaData.map((metaData) => metaData.multiHash);
-    const blocksData = await Promise.all<Response>(
-        multiHashes.map((multiHash) => fetch(url.resolve(IPFS_ENDPOINT, multiHash))));
-    return await Promise.all(
-        blocksData.map((blockData) => blockData.json()));
+function filterBlocksByVersion(blocks) {
+    return blocks.filter((x) => x.version === BLOCKCHAIN_VERSION_NO);
+}
+
+/**
+ * Sort blocks in ascending order.
+ */
+function sortBlocks(blocks) {
+    return blocks.sort((a, b) => a.data.sequence - b.data.sequence);
+}
+
+/**
+ * Return the entire Raha blockchain as a list of objects ordered by block sequence number.
+ */
+async function getBlockchain(): Promise<Block[]> {
+    const blockMetadata = await getBlockMetadata();
+    const blocks = await Promise.all(
+        blockMetadata.map(getBlockFromBlockMetadata));
+    return sortBlocks(filterBlocksByVersion(blocks));
 }
 
 export {
     getTransactions,
     getBlockMetadata,
-    getBlocks,
+    getBlockchain,
 };

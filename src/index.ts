@@ -1,9 +1,9 @@
-import { getBlocks } from './RahaBlockchain';
+import { getBlockchain } from './RahaBlockchain';
 import { operationsCollectionFilters as filters, get, operationsCollection } from './RahaFirestore';
 
 async function test() {
     console.log('starting');
-    const blocks = await getBlocks();
+    const blocks = await getBlockchain();
     console.log(blocks);
     console.log('done with blocks');
     const operations = await get(
