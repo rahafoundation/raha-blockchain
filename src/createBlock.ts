@@ -127,10 +127,18 @@ function formatData(data) {
 /**
  * Write the block to a file.
  */
-function writeBlockDataToLocalFile(blockData, multiHash, formattedData) {
-    const filename = `block-${blockData.sequence}-${multiHash}.json`;
-    fs.writeFileSync(filename, formattedData);
-    console.log(`Please upload ${filename} to the raha-blocks bucket in Google Cloud.`);
+async function writeBlockDataToLocalFile(blockData, multiHash, formattedData) {
+    return new Promise((resolve, error) => {
+        const filename = `block-${blockData.sequence}-${multiHash}.json`;
+        fs.writeFile(filename, formattedData, (err) => {
+            if (err) {
+                error(err);
+            } else {
+                console.log(`Please upload ${filename} to the raha-blocks bucket in Google Cloud.`);
+                resolve();
+            }
+        });
+    });
 }
 
 /**
@@ -139,16 +147,21 @@ function writeBlockDataToLocalFile(blockData, multiHash, formattedData) {
  * but there will likely be no node hosting that file.
  */
 async function createBlock(): Promise<Block> {
-    const data = await createIpfsBlock();
-    const formattedData = formatData(data);
-    const multiHash = await saveDataToIpfsAsFile(`block-${data.sequence}`, formatData);
-    writeBlockDataToLocalFile(data, multiHash, formattedData);
-    return {
-        metadata: {
-            multiHash: multiHash,
-        },
-        data,
-    };
+    try {
+        const data = await createIpfsBlock();
+        const formattedData = formatData(data);
+        const multiHash = await saveDataToIpfsAsFile(`block-${data.sequence}`, formatData);
+        await writeBlockDataToLocalFile(data, multiHash, formattedData);
+        return {
+            metadata: {
+                multiHash: multiHash,
+            },
+            data,
+        };
+    } catch (e) {
+        console.error(e);
+        throw e;
+    }
 }
 
 async function main() {
