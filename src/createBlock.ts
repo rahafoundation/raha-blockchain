@@ -13,14 +13,14 @@ import { BLOCKCHAIN_VERSION_NO, Block, StellarMetadata, IpfsBlock, Operation, Re
  * A map of functions that build the data component of Blockchain Operations from
  * the data component of Firestore Operations.
  */
-const bcOpDataBuilders = {
-    'REQUEST_INVITE': (fsOpData): RequestInvite => ({
-        full_name: fsOpData.full_name,
-        to_mid: fsOpData.to_mid,
-        video_url: fsOpData.video_url,
+const blockchainOpDataBuilders = {
+    REQUEST_INVITE: (firestoreOpData): RequestInvite => ({
+        full_name: firestoreOpData.full_name,
+        to_mid: firestoreOpData.to_mid,
+        video_url: firestoreOpData.video_url,
     }),
-    'TRUST': (operationData): Trust => ({
-        to_mid: operationData.to_mid,
+    TRUST: (firestoreOpData): Trust => ({
+        to_mid: firestoreOpData.to_mid,
     }),
 }
 
@@ -30,51 +30,53 @@ const bcOpDataBuilders = {
  *   * users cannot perform operations on nonexistent users.
  *   * // TODO: there must exist a trust path from a user who joined in a previous block to any user who performs a new TRUST operation
  */
-function filterBcOpsAgainstBlockchain(blockchain, bcOps) {
+function filterInvalidBlockchainOps(blockchain, blockchainOps) {
     // Create a set of creator_mid on all REQUEST_INVITE operations in blockchain and bcOps.
     // Check if to_mid, from_mid is included in above set.
     // TODO;
-    return bcOps;
+    return blockchainOps;
 }
 
 /**
  * TODO.
  */
-function validateBcOp(bcOp) {
+function validateBlockchainOp(blockchainOp) {
     return true;
 }
 
 /**
  * Build a Blockchain Operation from a Firestore Operation. Returns undefined if the operation is invalid.
  */
-function buildBcOpFromFsOp(
-        fsOp, index: number): Operation|void {
-    const opCode = fsOp.get('op_code');
-    const operationDataBuilder = bcOpDataBuilders[opCode];
-    if (!operationDataBuilder) {
+function buildBlockchainOpFromFirestoreOp(
+    firestoreOp: firebase.firestore.DocumentSnapshot, index: number
+): Operation | undefined {
+    const opCode = firestoreOp.get('op_code');
+
+    if (!(opCode in blockchainOpDataBuilders)) {
         return undefined;
     }
+    const operationDataBuilder = blockchainOpDataBuilders[opCode];
 
-    const bcOp = {
+    const blockchainOp = {
         sequence: index,
         op_code: opCode,
-        creator_mid: fsOp.get('creator_mid'),
-        data: operationDataBuilder(fsOp.get('data')),
+        creator_mid: firestoreOp.get('creator_mid'),
+        data: operationDataBuilder(firestoreOp.get('data')),
     };
-    return validateBcOp(bcOp) ? bcOp : undefined;
+    return validateBlockchainOp(blockchainOp) ? blockchainOp : undefined;
 }
 
 /**
  * Return a list of all valid unapplied operations from Firestore.
  */
 async function getBlockOperations(): Promise<Operation[]> {
-    const unappliedFsOps = await get(
+    const unappliedFirestoreOps = await get(
         filters.applied(false)(
             operationsCollection()));
 
     let i = 0;
-    const blockchainOperations = unappliedFsOps.map(
-        (op) => buildBcOpFromFsOp(op, i++));
+    const blockchainOperations = unappliedFirestoreOps.map(
+        (op) => buildBlockchainOpFromFirestoreOp(op, i++));
     return blockchainOperations.filter(x => x) as Operation[];
 }
 
@@ -96,9 +98,10 @@ function getLastBlockHash(blockchain: Block[]): string {
  * Create an IpfsBlock with all valid unapplied operations from Firestore.
  */
 async function createIpfsBlock(): Promise<IpfsBlock> {
-    const blockchain = await getBlockchain();
-    const blockOperations = await getBlockOperations();
-    const validOperations = filterBcOpsAgainstBlockchain(blockchain, blockOperations);
+    // getBlockchain and getBlockOperations in parallel.
+    const [ blockchain, blockOperations ] = await Promise.all(
+        [ getBlockchain(), getBlockOperations() ]);
+    const validOperations = filterInvalidBlockchainOps(blockchain, blockOperations);
 
     return {
         sequence: getNextBlockSequenceNumber(blockchain),
@@ -134,8 +137,6 @@ async function createBlock(): Promise<Block> {
     return {
         metadata: {
             multiHash: computeMultiHash(formattedData),
-            timeStr: '',
-            stellarTxId: '',
         },
         data,
     }

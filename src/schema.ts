@@ -30,9 +30,9 @@ interface Operation {
  */
 interface IpfsBlock {
     sequence: number,
-    origin_created: string|void,
+    origin_created: string | undefined,
     version: 1,
-    prev_version_block: string|void,
+    prev_version_block: string | undefined,
     prev_hash: string,
     operations: Array<Operation>,
 }
@@ -42,8 +42,8 @@ interface IpfsBlock {
  */
 interface StellarMetadata {
     multiHash: string,
-    timeStr: string,
-    stellarTxId: string,
+    timeStr?: string,
+    stellarTxId?: string,
 }
 
 /**
