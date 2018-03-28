@@ -22,9 +22,8 @@ function saveDataToIpfsAsFile(filename, data): Promise<string> {
                 if (err) {
                     reject(err);
                 }
-                node.stop(() => {
-                    resolve(res[0].hash);
-                });
+                resolve(res[0].hash);
+                node.stop();
             });
         });
     });
