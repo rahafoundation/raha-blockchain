@@ -115,14 +115,6 @@ async function createIpfsBlock(): Promise<IpfsBlock> {
 }
 
 /**
- * Compute an IPFS MultiHash over the provided data.
- * TODO.
- */
-function computeMultiHash(data: string) {
-    return 'multihash';
-}
-
-/**
  * Return Block as string.
  */
 function formatData(data) {
@@ -143,7 +135,7 @@ async function createBlock(): Promise<Block> {
             multiHash: multiHash,
         },
         data,
-    }
+    };
 }
 
 async function main() {
