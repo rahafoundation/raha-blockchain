@@ -135,6 +135,8 @@ async function writeBlockDataToLocalFile(blockData, multiHash, formattedData) {
                 error(err);
             } else {
                 console.log(`Please upload ${filename} to the raha-blocks bucket in Google Cloud.`);
+                console.log('If you have configured gsutil as described in the README, you may use the following command:');
+                console.log(`gsutil cp ${filename} gs://raha-blocks/`);
                 resolve();
             }
         });
