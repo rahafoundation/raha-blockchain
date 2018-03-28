@@ -4,3 +4,5 @@ dist/
 node_modules/
 
 yarn-error.log
+src/config/firebase.config.json
+
