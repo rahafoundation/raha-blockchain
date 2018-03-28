@@ -1,10 +1,13 @@
 /**
  * Creates the next block in the Raha Blockchain from unapplied operations in Firestore.
  *
+ * This module is intended to be run in a Node environment, not the browser.
+ *
  * Example usage:
  * node dist/createBlock.js > newBlock.json
  */
 
+import * as fs from 'fs';
 import { saveDataToIpfsAsFile } from './ipfs';
 import { getBlockchain } from './RahaBlockchain';
 import { operationsCollectionFilters as filters, get, operationsCollection } from './RahaFirestore';
@@ -122,6 +125,15 @@ function formatData(data) {
 }
 
 /**
+ * Write the block to a file.
+ */
+function writeBlockDataToLocalFile(blockData, multiHash, formattedData) {
+    const filename = `block-${blockData.sequence}-${multiHash}.json`;
+    fs.writeFileSync(filename, formattedData);
+    console.log(`Please upload ${filename} to the raha-blocks bucket in Google Cloud.`);
+}
+
+/**
  * Create a Block with all valid unapplied operations from Firestore.
  * Note: The multiHash is a valid IPFS MultiHash constructed by adding the IpfsBlock to IPFS,
  * but there will likely be no node hosting that file.
@@ -130,6 +142,7 @@ async function createBlock(): Promise<Block> {
     const data = await createIpfsBlock();
     const formattedData = formatData(data);
     const multiHash = await saveDataToIpfsAsFile(`block-${data.sequence}`, formatData);
+    writeBlockDataToLocalFile(data, multiHash, formattedData);
     return {
         metadata: {
             multiHash: multiHash,
@@ -140,7 +153,6 @@ async function createBlock(): Promise<Block> {
 
 async function main() {
     const block = await createBlock();
-    console.log(formatData(block))
     process.exit();
 }
 
