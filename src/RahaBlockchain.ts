@@ -101,7 +101,7 @@ async function getBlockFromBlockMetadata(metadata): Promise<Block> {
  * Filter blocks which don't belong to the latest version of the blockchain.
  */
 function filterBlocksByVersion(blocks) {
-    return blocks.filter((x) => x.version === BLOCKCHAIN_VERSION_NO);
+    return blocks.filter((x) => x.data.version === BLOCKCHAIN_VERSION_NO);
 }
 
 /**

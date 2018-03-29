@@ -9,6 +9,7 @@
     "bs58": "^4.0.1",
     "buffer": "^5.1.0",
     "firebase": "^4.12.0",
+    "ipfs": "^0.28.2",
     "isomorphic-fetch": "^2.2.1",
     "stellar-sdk": "^0.8.0",
     "url": "^0.11.0"

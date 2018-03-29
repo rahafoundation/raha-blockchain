@@ -5,6 +5,7 @@
  * node dist/createBlock.js > newBlock.json
  */
 
+import { saveDataToIpfsAsFile } from './ipfs';
 import { getBlockchain } from './RahaBlockchain';
 import { operationsCollectionFilters as filters, get, operationsCollection } from './RahaFirestore';
 import { BLOCKCHAIN_VERSION_NO, Block, StellarMetadata, IpfsBlock, Operation, RequestInvite, Trust } from './schema';
@@ -114,14 +115,6 @@ async function createIpfsBlock(): Promise<IpfsBlock> {
 }
 
 /**
- * Compute an IPFS MultiHash over the provided data.
- * TODO.
- */
-function computeMultiHash(data: string) {
-    return 'multihash';
-}
-
-/**
  * Return Block as string.
  */
 function formatData(data) {
@@ -130,16 +123,19 @@ function formatData(data) {
 
 /**
  * Create a Block with all valid unapplied operations from Firestore.
+ * Note: The multiHash is a valid IPFS MultiHash constructed by adding the IpfsBlock to IPFS,
+ * but there will likely be no node hosting that file.
  */
 async function createBlock(): Promise<Block> {
     const data = await createIpfsBlock();
     const formattedData = formatData(data);
+    const multiHash = await saveDataToIpfsAsFile(`block-${data.sequence}`, formatData);
     return {
         metadata: {
-            multiHash: computeMultiHash(formattedData),
+            multiHash: multiHash,
         },
         data,
-    }
+    };
 }
 
 async function main() {

@@ -31,7 +31,7 @@ interface Operation {
 interface IpfsBlock {
     sequence: number,
     origin_created: string | undefined,
-    version: 1,
+    version: 0 | 1,
     prev_version_block: string | undefined,
     prev_hash: string,
     operations: Array<Operation>,
