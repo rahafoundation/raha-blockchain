@@ -142,7 +142,10 @@ async function createBlock(): Promise<Block> {
     }
 }
 
-createBlock().then((block) => {
+async function main() {
+    const block = await createBlock();
     console.log(formatData(block))
     process.exit();
-});
+}
+
+main();
