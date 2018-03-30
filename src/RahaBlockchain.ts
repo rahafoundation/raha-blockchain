@@ -6,39 +6,11 @@ import * as url from 'url';
 
 import { IPFS_ENDPOINT, IPFS_SHA_256_LEN_32_PREFIX, STELLAR_ENDPOINT, RAHA_IO_STELLAR_PUBLIC_KEY } from './constants';
 import { BLOCKCHAIN_VERSION_NO, Block, StellarMetadata } from './schema';
-
-/**
- * Note: TransactionMetadata is undocumented and quite ugly to interact with. Mark had to look into the SDK source to do
- * TODO: Can we use documented features/do this in an easier to understand and less brittle way?
- */
-function getFirstOperationAttributesFromTransactionMeta(transactionMeta) {
-    return transactionMeta._value[0]._attributes.changes[0]._value._attributes.data._value._attributes
-}
-
-/**
- * Return the name of a block from transaction metadata.
- */
-function getBlockNameFromTransactionMeta(transactionMeta) {
-    return getFirstOperationAttributesFromTransactionMeta(transactionMeta).dataName;
-}
-
-/**
- * Legacy method for blocks set using only managed data with no memo hash.
- * See note on TransactionMetadata above.
- */
-function getMultiHashFromTransactionMeta(transactionMeta) {
-    const charCode = getFirstOperationAttributesFromTransactionMeta(transactionMeta).dataValue;
-    return String.fromCharCode.apply(null, charCode);
-}
-
-/**
- * Extract the TransactionMeta XDR object from the Stellar transaction.
- * See note on TransactionMetadata above.
- */
-function getTransactionMetaFromTransaction(stellarTx) {
-    // xdr cast because StellarSdk XDR typing is bad.
-    return (StellarSdk.xdr as any).TransactionMeta.fromXDR(stellarTx.result_meta_xdr, 'base64');
-}
+import RahaStellar, {
+    getTransactionMetaFromTransaction,
+    getBlockNameFromTransactionMeta,
+    getMultiHashFromTransactionMeta
+} from './RahaStellar';
 
 /**
  * A utility function to convert a Raha transaction memo (stored on Stellar) to a base58-encoded IPFS MultiHash.
@@ -69,24 +41,10 @@ function stellarTxToBlockMetaData(stellarTx): StellarMetadata|void {
 }
 
 /**
- * Return all transactions associated with the Raha account from the Stellar blockchain ordered chronologically.
- * TODO: Documentation doesn't specify the current page limit. Add paging support.
- * Update: Default limit is 10, max is 200. https://stellar.stackexchange.com/a/792/1187.
- */
-async function getTransactions() {
-    const horizonServer = new StellarSdk.Server(STELLAR_ENDPOINT);
-    return (await horizonServer.transactions()
-        .forAccount(RAHA_IO_STELLAR_PUBLIC_KEY)
-        .order('desc')
-        .limit(200)
-        .call()).records;
-}
-
-/**
  * Return metadata about all IPFS blocks in the Raha blockchain.
  */
 async function getBlockMetadata() {
-    const transactions = await getTransactions();
+    const transactions = await new RahaStellar(false).getTransactions();
     return transactions.map(stellarTxToBlockMetaData).filter(x => x) as Array<StellarMetadata>;
 }
 
@@ -122,7 +80,6 @@ async function getBlockchain(): Promise<Block[]> {
 }
 
 export {
-    getTransactions,
     getBlockMetadata,
     getBlockchain,
 };
