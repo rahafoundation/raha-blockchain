@@ -8,10 +8,10 @@
  */
 
 import * as fs from 'fs';
-import { saveDataToIpfsAsFile } from './ipfs';
-import { getBlockchain } from './RahaBlockchain';
-import { operationsCollectionFilters as filters, get, operationsCollection } from './RahaFirestore';
-import { BLOCKCHAIN_VERSION_NO, Block, StellarMetadata, IpfsBlock, Operation, RequestInvite, Trust } from './schema';
+import { saveDataToIpfsAsFile } from '../RahaIpfs';
+import { getBlockchain } from '../RahaBlockchain';
+import { operationsCollectionFilters as filters, get, operationsCollection } from '../RahaFirestore';
+import { BLOCKCHAIN_VERSION_NO, Block, StellarMetadata, IpfsBlock, Operation, RequestInvite, Trust } from '../RahaSchema';
 
 /**
  * A map of functions that build the data component of Blockchain Operations from
@@ -166,9 +166,15 @@ async function createBlock(): Promise<Block> {
     }
 }
 
-async function main() {
+export async function main() {
     const block = await createBlock();
-    process.exit();
+    // Exit if called directly.
+    if (require.main === module) {
+        process.exit();
+    } else {
+        return block;
+    }
 }
 
 main();
+
