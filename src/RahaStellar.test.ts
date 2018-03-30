@@ -6,12 +6,7 @@ describe('function sha256MultiHashToMemo', function() {
     it('should throw an error on invalid MultiHash prefix.', function() {
         let error = new Error('');
         const badMultiHash = 'ZzTcHdEZNrKB3zb5XSUeMUy83kfVJCbxcbRuFqDYdDxdsa';
-        try {
-            sha256MultiHashToMemo(badMultiHash);
-        } catch (err) {
-            error = err;
-        }
-        expect(error.message).to.equal('Invalid MultiHash prefix.');
+        expect(() => sha256MultiHashToMemo(badMultiHash)).to.throw(Error, 'Invalid MultiHash prefix.');
     });
     it('should return the expected encoded MultiHash.', function() {
         const multiHash = 'QmTcHdEZNrKB3zb5XSUeMUy83kfVJCbxcbRuFqDYdDxdsa';

@@ -43,8 +43,8 @@ function stellarTxToBlockMetaData(stellarTx): StellarMetadata|void {
 /**
  * Return metadata about all IPFS blocks in the Raha blockchain.
  */
-async function getBlockMetadata() {
-    const transactions = await new RahaStellar(false).getTransactions();
+async function getBlockMetadata(account, isTest) {
+    const transactions = await new RahaStellar(isTest).getTransactions(account);
     return transactions.map(stellarTxToBlockMetaData).filter(x => x) as Array<StellarMetadata>;
 }
 
@@ -72,8 +72,8 @@ function sortBlocks(blocks) {
 /**
  * Return the entire Raha blockchain as a list of objects ordered by block sequence number.
  */
-async function getBlockchain(): Promise<Block[]> {
-    const blockMetadata = await getBlockMetadata();
+async function getBlockchain(account=RAHA_IO_STELLAR_PUBLIC_KEY, isTest=false): Promise<Block[]> {
+    const blockMetadata = await getBlockMetadata(account, isTest);
     const blocks = await Promise.all(
         blockMetadata.map(getBlockFromBlockMetadata));
     return sortBlocks(filterBlocksByVersion(blocks));

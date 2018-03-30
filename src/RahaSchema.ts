@@ -33,7 +33,7 @@ interface IpfsBlock {
     origin_created: string | undefined,
     version: 0 | 1,
     prev_version_block: string | undefined,
-    prev_hash: string,
+    prev_hash: string | undefined,
     operations: Array<Operation>,
 }
 
