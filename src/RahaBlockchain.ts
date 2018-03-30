@@ -1,11 +1,11 @@
 import { Buffer } from 'buffer';
 import * as bs58 from 'bs58';
-import fetch, { Response } from 'node-fetch';
+import fetch, { Response } from 'isomorphic-fetch';
 import StellarSdk from 'stellar-sdk';
 import * as url from 'url';
 
 import { IPFS_ENDPOINT, IPFS_SHA_256_LEN_32_PREFIX, STELLAR_ENDPOINT, RAHA_IO_STELLAR_PUBLIC_KEY } from './constants';
-import { BLOCKCHAIN_VERSION_NO, Block, StellarMetadata } from './schema';
+import { BLOCKCHAIN_VERSION_NO, Block, StellarMetadata } from './RahaSchema';
 import RahaStellar, {
     getTransactionMetaFromTransaction,
     getBlockNameFromTransactionMeta,
