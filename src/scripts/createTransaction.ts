@@ -2,21 +2,51 @@
  * A script to create a transaction recording a new IPFS block Multihash in Stellar.
  */
 
-import RahaStellar from '../RahaStellar';
+import RahaStellar, { getNewTestAccount } from '../RahaStellar';
 
-async function main() {
-    if (process.argv.length !== 5) {
-        console.log('Usage is: node uploadBlock.ts [isTest(y/n)] [multiHash] [secretKey]')
-        process.exit(1);
-    } else {
-        const isTest = process.argv[2] == 'y';
-        const multiHash = process.argv[3];
-        const secretKey = process.argv[4];
-        console.log(await new RahaStellar(isTest).createRahaBlockchainTransaction(multiHash, secretKey));
-        process.exit(0);
-    }
-    // console.log(await (new RahaStellar(true).createRahaBlockchainTransaction(
-    //     'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'SBK2VIYYSVG76E7VC3QHYARNFLY2EAQXDHRC7BMXBBGIFG74ARPRMNQM')));
+const modes = ['test', 'prod'];
+
+function errorOnUsage() {
+    console.log('Usage is: node uploadBlock.ts [test|prod] [multiHash] [secretKey (optional if testing)]')
+    process.exit(1);
 }
 
-main();
+async function main(args) {
+    // Verify existence of isTest and multiHash arguments
+    if (args.length < 4) errorOnUsage();
+
+    const mode = process.argv[2];
+    if (!modes.includes(mode)) errorOnUsage();
+    const isTest = mode === 'test';
+
+    const multiHash = process.argv[3];
+
+    let publicKey;
+    let secretKey;
+    if (args.length < 5) {
+        if (isTest) {
+            const keyPair = await getNewTestAccount();
+            console.log(`New test public key is ${keyPair.publicKey()}.`);
+            secretKey = keyPair.secret();
+        } else {
+            errorOnUsage();
+        }
+    } else {
+        secretKey = args[4];
+    }
+
+    try {
+        console.log(await new RahaStellar(isTest).createRahaBlockchainTransaction(multiHash, secretKey));
+        process.exit(0);
+    } catch (err) {
+        if (err.name === 'BadResponseError') {
+            console.error(err.message);
+            console.error(JSON.stringify(err.data, null, 4));
+        } else {
+            console.error(err);
+        }
+        process.exit(1);
+    }
+}
+
+main(process.argv);

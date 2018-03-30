@@ -10,8 +10,8 @@ Or, you can use the browser console).
 It should be running a service script that will download all files from the
 raha-blocks bucket and add them to ipfs.
 1. Record the new block in a Stellar transaction:
-`yarn create-block [isTest(y/n)] [multiHash] [secretKey]`. Example usage:
-`yarn create-block y QmTcHdEZNrKB3zb5XSUeMUy83kfVJCbxcbRuFqDYdDxdsa $(openssl aes-256-cbc -d -in ~/.enc_secret_key)`
+`yarn create-block [test|prod] [multiHash] [secretKey]`. Example usage:
+`yarn create-block prod QmTcHdEZNrKB3zb5XSUeMUy83kfVJCbxcbRuFqDYdDxdsa $(openssl aes-256-cbc -d -in ~/.enc_secret_key)`
 
 ## Setting up gsutil
 1. Install gsutil: `pip install gsutil`

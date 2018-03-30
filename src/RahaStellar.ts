@@ -1,8 +1,10 @@
 import * as bs58 from 'bs58';
 import { Buffer } from 'buffer';
+import fetch from 'isomorphic-fetch';
 import StellarSdk from 'stellar-sdk';
+import { URL, URLSearchParams } from 'url';
 
-import { STELLAR_ENDPOINT, RAHA_IO_STELLAR_PUBLIC_KEY } from './constants';
+import { IPFS_SHA_256_LEN_32_PREFIX, STELLAR_ENDPOINT, RAHA_IO_STELLAR_PUBLIC_KEY, STELLAR_TEST_ENDPOINT } from './constants';
 
 /**
  * Note: TransactionMetadata is undocumented and quite ugly to interact with. Mark had to look into the SDK source to do
@@ -37,23 +39,51 @@ export function getTransactionMetaFromTransaction(stellarTx) {
     return (StellarSdk.xdr as any).TransactionMeta.fromXDR(stellarTx.result_meta_xdr, 'base64');
 }
 
-function multiHashToMemo(base58MultiHash) {
-    const bytes = bs58.decode(base58MultiHash);
-    return bytes.slice(2);
+export function sha256MultiHashToMemo(base58MultiHash: string) {
+    const multiHashBuffer = bs58.decode(base58MultiHash);
+    const multiHashBytes = Uint8Array.from(multiHashBuffer);
+    for (let i = 0; i < IPFS_SHA_256_LEN_32_PREFIX.length; ++i) {
+        if (i >= multiHashBytes.length || IPFS_SHA_256_LEN_32_PREFIX[i] !== multiHashBytes[i]) {
+            throw new Error('Invalid MultiHash prefix.');
+        }
+    }
+    return multiHashBuffer.slice(2);
+}
+
+/**
+ * Create a new Stellar account for testing (on the test network). Returns a
+ * KeyPair object with the new account's public and private keys.
+ */
+export async function getNewTestAccount() {
+    const keyPair = StellarSdk.Keypair.random();
+    const friendBotFundRequest = new URL('https://friendbot.stellar.org');
+    friendBotFundRequest.searchParams.append('addr', keyPair.publicKey());
+    try {
+        await fetch(friendBotFundRequest.href);
+        return keyPair;
+    } catch (err) {
+        console.error(`Error adding funds to test account: ${err}`);
+        throw err;
+    }
 }
 
 class RahaStellar {
-    isTest;
+    useTestNetwork : boolean;
     horizonServer : StellarSdk.Server;
 
-    constructor (isTest) {
-        this.isTest = isTest;
-        StellarSdk.Network.usePublicNetwork();
-        this.horizonServer = new StellarSdk.Server(STELLAR_ENDPOINT);
+    constructor (useTestNetwork) {
+        this.useTestNetwork = useTestNetwork;
+        if (useTestNetwork) {
+            StellarSdk.Network.useTestNetwork();
+            this.horizonServer = new StellarSdk.Server(STELLAR_TEST_ENDPOINT);
+        } else {
+            StellarSdk.Network.usePublicNetwork();
+            this.horizonServer = new StellarSdk.Server(STELLAR_ENDPOINT);
+        }
     }
 
-    async getRahaAccount() {
-        return this.horizonServer.loadAccount(RAHA_IO_STELLAR_PUBLIC_KEY);
+    async getAccount(address) {
+        return this.horizonServer.loadAccount(address);
     }
 
     /**
@@ -61,9 +91,9 @@ class RahaStellar {
      * TODO: Documentation doesn't specify the current page limit. Add paging support.
      * Update: Default limit is 10, max is 200. https://stellar.stackexchange.com/a/792/1187.
      */
-    async getTransactions() {
+    async getTransactions(address=RAHA_IO_STELLAR_PUBLIC_KEY) {
         return (await this.horizonServer.transactions()
-            .forAccount(RAHA_IO_STELLAR_PUBLIC_KEY)
+            .forAccount(address)
             .order('desc')
             .limit(200)
             .call()).records;
@@ -73,20 +103,21 @@ class RahaStellar {
      * Create a new transaction in the Stellar blockchain that records
      * the multiHash of the new block.
      */
-    async createRahaBlockchainTransaction(multiHash, secretKey) {
+    async createRahaBlockchainTransaction(multiHash : string, secretKey : string) {
         // Lol. these types are broken. also, so is the documentation.
-        const memo = new StellarSdk.Memo('hash' as 'MemoHash', multiHashToMemo(multiHash));
-        const transaction = new StellarSdk.TransactionBuilder(await this.getRahaAccount())
+        const memo = new StellarSdk.Memo('hash' as 'MemoHash', sha256MultiHashToMemo(multiHash));
+        const keyPair = StellarSdk.Keypair.fromSecret(secretKey);
+        const address = keyPair.publicKey();
+        if (address !== RAHA_IO_STELLAR_PUBLIC_KEY && !this.useTestNetwork) {
+            console.warn('The public key of provided secret key does not match known RAHA_IO_STELLAR_PUBLIC_KEY.')
+        }
+        const transaction = new StellarSdk.TransactionBuilder(await this.getAccount(keyPair.publicKey()))
+            .addOperation(StellarSdk.Operation.manageData({name: 'block-latest', value: multiHash}))
             .addMemo(memo)
             .build();
-        transaction.sign(StellarSdk.Keypair.fromSecret(secretKey));
+        transaction.sign(keyPair);
         try {
-            if (this.isTest) {
-                console.log('Returning without submitting transaction.');
-                return 0;
-            } else {
-                return this.horizonServer.submitTransaction(transaction);
-            }
+            return this.horizonServer.submitTransaction(transaction);
         } catch (err) {
             console.error(err);
             throw err;
