@@ -11,31 +11,35 @@ function errorOnUsage() {
 }
 
 async function main(args) {
-    try {
-        // Verify existence of isTest and multiHash arguments
-        if (args.length < 4) errorOnUsage();
+    // Verify existence of isTest and multiHash arguments
+    if (args.length < 4) errorOnUsage();
 
-        const mode = process.argv[2];
-        if (!modes.includes(mode)) errorOnUsage();
-        const isTest = mode === 'test';
+    const mode = process.argv[2];
+    if (!modes.includes(mode)) errorOnUsage();
+    const isTest = mode === 'test';
 
-        const multiHash = process.argv[3];
+    const multiHash = process.argv[3];
 
-        let publicKey;
-        let secretKey;
-        if (args.length < 5) {
-            if (isTest) {
-                const keyPair = await getNewTestAccount();
-                console.log(`New test public key is ${keyPair.publicKey()}.`);
-                secretKey = keyPair.secret();
-            } else {
-                errorOnUsage();
-            }
+    let publicKey;
+    let secretKey;
+    if (args.length < 5) {
+        if (isTest) {
+            const keyPair = await getNewTestAccount();
+            console.log(`New test public key is ${keyPair.publicKey()}.`);
+            secretKey = keyPair.secret();
         } else {
-            secretKey = args[4];
+            errorOnUsage();
         }
-        console.log(await new RahaStellar(isTest).createRahaBlockchainTransaction(multiHash, secretKey));
-    } catch (err) {
+    } else {
+        secretKey = args[4];
+    }
+    console.log(await new RahaStellar(isTest).createRahaBlockchainTransaction(multiHash, secretKey));
+}
+
+
+main(process.argv)
+    .then(() => process.exit(0))
+    .catch((err) => {
         if (err.name === 'BadResponseError') {
             console.error(err.message);
             console.error(JSON.stringify(err.data, null, 4));
@@ -43,8 +47,4 @@ async function main(args) {
             console.error(err);
         }
         process.exit(1);
-    }
-    process.exit(0);
-}
-
-main(process.argv);
+    });
