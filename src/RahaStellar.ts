@@ -42,10 +42,9 @@ export function getTransactionMetaFromTransaction(stellarTx) {
 export function sha256MultiHashToMemo(base58MultiHash: string) {
     const multiHashBuffer = bs58.decode(base58MultiHash);
     const multiHashBytes = Uint8Array.from(multiHashBuffer);
-    for (let i = 0; i < IPFS_SHA_256_LEN_32_PREFIX.length; ++i) {
-        if (i >= multiHashBytes.length || IPFS_SHA_256_LEN_32_PREFIX[i] !== multiHashBytes[i]) {
-            throw new Error('Invalid MultiHash prefix.');
-        }
+    const multiHashPrefix = multiHashBytes.slice(0, IPFS_SHA_256_LEN_32_PREFIX.length).toString();
+    if (multiHashPrefix !== IPFS_SHA_256_LEN_32_PREFIX.toString()) {
+        throw new Error(`Invalid MultiHash prefix: ${multiHashPrefix}.`);
     }
     return multiHashBuffer.slice(2);
 }
@@ -58,13 +57,8 @@ export async function getNewTestAccount() {
     const keyPair = StellarSdk.Keypair.random();
     const friendBotFundRequest = new URL('https://friendbot.stellar.org');
     friendBotFundRequest.searchParams.append('addr', keyPair.publicKey());
-    try {
-        await fetch(friendBotFundRequest.href);
-        return keyPair;
-    } catch (err) {
-        console.error(`Error adding funds to test account: ${err}`);
-        throw err;
-    }
+    await fetch(friendBotFundRequest.href);
+    return keyPair;
 }
 
 class RahaStellar {
@@ -116,12 +110,7 @@ class RahaStellar {
             .addMemo(memo)
             .build();
         transaction.sign(keyPair);
-        try {
-            return this.horizonServer.submitTransaction(transaction);
-        } catch (err) {
-            console.error(err);
-            throw err;
-        }
+        return await this.horizonServer.submitTransaction(transaction);
     }
 }
 
