@@ -10,42 +10,37 @@ import IPFS from 'ipfs';
  * will likely be nowhere else on the network once the node is stopped
  * and the promise resolves.
  */
-function saveDataToIpfsAsFile(filename, data, providedNode=undefined): Promise<string> {
-    return new Promise((resolve, reject) => {
-        const node = providedNode === undefined ? new IPFS() : providedNode;
-        let multiHash;
+async function saveDataToIpfsAsFile(filename, data, providedIpfsNode=undefined): Promise<string> {
+    const node = providedIpfsNode === undefined ? new IPFS() : providedIpfsNode;
 
-        async function addFile() {
-            // If the IPFS node is already online, the 'ready' callback will not get triggered.
-            // Wrapping this in a promise ensures that we only add the file once.
-            await new Promise((innerResolve, innerReject) => {
-                node.on('ready', () => {
-                    innerResolve();
-                });
-                node.on('error', (err) => {
-                    innerReject(err);
-                });
-                if (node.isOnline()) {
-                    innerResolve();
-                }
-            });
-
-            node.files.add({
-                path: filename,
-                content: Buffer.from(data),
-            }, null, (err, res) => {
-                if (err) {
-                    reject(err);
-                }
-                resolve(res[0].hash);
-                // Stop the node if we created it.
-                if (providedNode === undefined) {
-                    node.stop();
-                }
-            });
+    // If the IPFS node is already online, the 'ready' callback will not get triggered.
+    // Wrapping this in a promise ensures that we only add the file once.
+    await new Promise((resolve, reject) => {
+        node.on('ready', () => {
+            resolve();
+        });
+        node.on('error', (err) => {
+            reject(err);
+        });
+        if (node.isOnline()) {
+            resolve();
         }
+    });
 
-        addFile();
+    return await new Promise<Promise<string>>((resolve, reject) => {
+        node.files.add({
+            path: filename,
+            content: Buffer.from(data),
+        }, null, (err, res) => {
+            if (err) {
+                reject(err);
+            }
+            resolve(res[0].hash);
+            // Stop the node if we created it.
+            if (providedIpfsNode === undefined) {
+                node.stop();
+            }
+        });
     });
 }
 
