@@ -32,10 +32,7 @@ describe('An EndToEnd test for creating a new block in the blockchain.', functio
     let ipfsNode;
     let keyPair : StellarSdk.Keypair;
 
-    // Set test timeout to 30 seconds.
-    this.timeout(30000);
-
-    before(async function () {
+    beforeAll(async function () {
         ipfsNode = new IPFS();
         console.log('IPFS node initialized.');
         keyPair = await getNewTestAccount();
@@ -43,7 +40,6 @@ describe('An EndToEnd test for creating a new block in the blockchain.', functio
     });
 
     it('Should upload a block to IPFS.', async function () {
-        this.timeout(10000);
         const multiHash = await saveDataToIpfsAsFile('testFile', blockContents, ipfsNode);
         console.log(multiHash);
         expect(multiHash).to.equal(expectedMultiHash);
@@ -68,8 +64,8 @@ describe('An EndToEnd test for creating a new block in the blockchain.', functio
         }
     });
 
-    after(function(done) {
-        ipfsNode.on('stop', () => done());
+    afterAll(function(done) {
         ipfsNode.stop();
+        ipfsNode.on('stop', () => done());
     })
 });
