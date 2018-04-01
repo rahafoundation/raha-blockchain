@@ -18,12 +18,12 @@ import { IpfsBlock } from './RahaSchema';
  */
 
 describe('An EndToEnd test for creating a new block in the blockchain.', function() {
+    jest.setTimeout(30000);
+
     const block : IpfsBlock = {
         sequence: 3,
         prev_hash: undefined,
-        origin_created: undefined,
         version: 1,
-        prev_version_block: undefined,
         operations: [],
     };
     const blockContents = JSON.stringify(block);
@@ -58,9 +58,7 @@ describe('An EndToEnd test for creating a new block in the blockchain.', functio
         expect(blockMetadata.multiHash).to.equal(expectedMultiHash);
         const blockData = blockchain[0].data;
         for (let key in Object.keys(block)) {
-            if (block[key] !== undefined) {
-                expect(blockData[key]).to.equal(block[key]);
-            }
+            expect(blockData[key]).to.equal(block[key]);
         }
     });
 

@@ -18,9 +18,12 @@ function saveDataToIpfsAsFile(filename, data, providedNode=undefined): Promise<s
         async function addFile() {
             // If the IPFS node is already online, the 'ready' callback will not get triggered.
             // Wrapping this in a promise ensures that we only add the file once.
-            await new Promise((innerResolve) => {
+            await new Promise((innerResolve, innerReject) => {
                 node.on('ready', () => {
                     innerResolve();
+                });
+                node.on('error', (err) => {
+                    innerReject(err);
                 });
                 if (node.isOnline()) {
                     innerResolve();
