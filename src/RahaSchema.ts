@@ -30,10 +30,10 @@ interface Operation {
  */
 interface IpfsBlock {
     sequence: number,
-    origin_created: string | undefined,
+    origin_created?: string,
     version: 0 | 1,
-    prev_version_block: string | undefined,
-    prev_hash: string,
+    prev_version_block?: string,
+    prev_hash: string | undefined,
     operations: Array<Operation>,
 }
 

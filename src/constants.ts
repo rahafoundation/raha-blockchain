@@ -3,6 +3,7 @@ const RAHA_IO_STELLAR_PUBLIC_KEY = 'GBDXRTPHZPPYHT5PGAVVKSXSA7WOTTKSWFDE3Q2LPFT6
 const IPFS_SHA_256_LEN_32_PREFIX = [18, 32];
 const IPFS_ENDPOINT = 'https://ipfs.io/ipfs/';
 const STELLAR_ENDPOINT = 'https://horizon.stellar.org';
+const STELLAR_TEST_ENDPOINT = 'https://horizon-testnet.stellar.org/';
 const STELLAR_TRANSACTIONS = STELLAR_ENDPOINT + '/transactions/';
 
 export {
@@ -10,5 +11,6 @@ export {
     IPFS_SHA_256_LEN_32_PREFIX,
     IPFS_ENDPOINT,
     STELLAR_ENDPOINT,
+    STELLAR_TEST_ENDPOINT,
     STELLAR_TRANSACTIONS
 };
