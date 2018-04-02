@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import RahaStellar, { sha256MultiHashToMemo } from './RahaStellar';
+import { sha256MultiHashToMemo } from './stellar';
 
 describe('function sha256MultiHashToMemo', function() {
     it('should throw an error on invalid MultiHash prefix.', function() {

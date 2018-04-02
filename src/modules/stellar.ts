@@ -4,7 +4,7 @@ import fetch from 'isomorphic-fetch';
 import StellarSdk from 'stellar-sdk';
 import { URL, URLSearchParams } from 'url';
 
-import { IPFS_SHA_256_LEN_32_PREFIX, STELLAR_ENDPOINT, RAHA_IO_STELLAR_PUBLIC_KEY, STELLAR_TEST_ENDPOINT } from './constants';
+import { IPFS_SHA_256_LEN_32_PREFIX, STELLAR_ENDPOINT, RAHA_IO_STELLAR_PUBLIC_KEY, STELLAR_TEST_ENDPOINT } from '../constants';
 
 /**
  * Note: TransactionMetadata is undocumented and quite ugly to interact with. Mark had to look into the SDK source to do
@@ -61,7 +61,7 @@ export async function getNewTestAccount() {
     return keyPair;
 }
 
-class RahaStellar {
+class Stellar {
     useTestNetwork : boolean;
     horizonServer : StellarSdk.Server;
 
@@ -114,4 +114,4 @@ class RahaStellar {
     }
 }
 
-export default RahaStellar;
+export default Stellar;

@@ -4,13 +4,13 @@ import fetch, { Response } from 'isomorphic-fetch';
 import StellarSdk from 'stellar-sdk';
 import * as url from 'url';
 
-import { IPFS_ENDPOINT, IPFS_SHA_256_LEN_32_PREFIX, STELLAR_ENDPOINT, RAHA_IO_STELLAR_PUBLIC_KEY } from './constants';
-import { BLOCKCHAIN_VERSION_NO, Block, StellarMetadata } from './RahaSchema';
+import { IPFS_ENDPOINT, IPFS_SHA_256_LEN_32_PREFIX, STELLAR_ENDPOINT, RAHA_IO_STELLAR_PUBLIC_KEY } from '../constants';
+import { BLOCKCHAIN_VERSION_NO, Block, StellarMetadata } from './schema';
 import RahaStellar, {
     getTransactionMetaFromTransaction,
     getBlockNameFromTransactionMeta,
     getMultiHashFromTransactionMeta
-} from './RahaStellar';
+} from './stellar';
 
 /**
  * A utility function to convert a Raha transaction memo (stored on Stellar) to a base58-encoded IPFS MultiHash.
