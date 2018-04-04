@@ -8,10 +8,10 @@
  */
 
 import * as fs from 'fs';
-import { saveDataToIpfsAsFile } from '../modules/ipfs';
-import { getBlockchain } from '../modules/blockchain';
-import { operationsCollectionFilters as filters, get, operationsCollection } from '../modules/firestore';
-import { BLOCKCHAIN_VERSION_NO, Block, StellarMetadata, IpfsBlock, Operation, RequestInvite, Trust } from '../modules/schema';
+import { saveDataToIpfsAsFile } from '../ipfs';
+import { getBlockchain } from '../blockchain';
+import { operationsCollectionFilters as filters, get, operationsCollection } from '../firestore';
+import { BLOCKCHAIN_VERSION_NO, Block, StellarMetadata, IpfsBlock, Operation, RequestInvite, Trust } from '../schema';
 
 /**
  * A map of functions that build the data component of Blockchain Operations from

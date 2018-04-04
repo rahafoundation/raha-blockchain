@@ -1,5 +1,5 @@
-import { getBlockchain } from './modules/blockchain';
-import { operationsCollectionFilters as filters, get, operationsCollection } from './modules/firestore';
+import { getBlockchain } from './blockchain';
+import { operationsCollectionFilters as filters, get, operationsCollection } from './firestore';
 
 async function test() {
     console.log('starting');

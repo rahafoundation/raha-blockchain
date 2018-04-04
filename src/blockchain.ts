@@ -4,7 +4,7 @@ import fetch, { Response } from 'isomorphic-fetch';
 import StellarSdk from 'stellar-sdk';
 import * as url from 'url';
 
-import { IPFS_ENDPOINT, IPFS_SHA_256_LEN_32_PREFIX, STELLAR_ENDPOINT, RAHA_IO_STELLAR_PUBLIC_KEY } from '../constants';
+import { IPFS_ENDPOINT, IPFS_SHA_256_LEN_32_PREFIX, STELLAR_ENDPOINT, RAHA_IO_STELLAR_PUBLIC_KEY } from './constants';
 import { BLOCKCHAIN_VERSION_NO, Block, StellarMetadata } from './schema';
 import RahaStellar, {
     getTransactionMetaFromTransaction,

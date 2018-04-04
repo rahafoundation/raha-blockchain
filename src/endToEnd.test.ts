@@ -2,10 +2,10 @@ import { expect } from 'chai';
 import IPFS from 'ipfs';
 import StellarSdk from 'stellar-sdk';
 
-import Stellar, { getNewTestAccount } from "./modules/stellar";
-import { saveDataToIpfsAsFile } from "./modules/ipfs";
-import { getBlockchain } from './modules/blockchain';
-import { IpfsBlock } from './modules/schema';
+import Stellar, { getNewTestAccount } from "./stellar";
+import { saveDataToIpfsAsFile } from "./ipfs";
+import { getBlockchain } from './blockchain';
+import { IpfsBlock } from './schema';
 
 /**
  * Test steps:

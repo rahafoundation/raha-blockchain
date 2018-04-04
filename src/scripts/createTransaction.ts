@@ -2,7 +2,7 @@
  * A script to create a transaction recording a new IPFS block Multihash in Stellar.
  */
 
-import Stellar, { getNewTestAccount } from '../modules/stellar';
+import Stellar, { getNewTestAccount } from '../stellar';
 
 const modes = ['test', 'prod'];
 
