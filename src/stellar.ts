@@ -61,7 +61,7 @@ export async function getNewTestAccount() {
     return keyPair;
 }
 
-class RahaStellar {
+class StellarMemoHashes {
     useTestNetwork : boolean;
     horizonServer : StellarSdk.Server;
 
@@ -114,4 +114,4 @@ class RahaStellar {
     }
 }
 
-export default RahaStellar;
+export default StellarMemoHashes;

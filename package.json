@@ -18,7 +18,7 @@
     "use-prod-db": "cp src/config/firebase.prod.json src/config/firebase.config.json",
     "use-test-db": "cp src/config/firebase.test.json src/config/firebase.config.json",
     "build": "rm -rf dist && tsc && mkdir -p dist/config && cp src/config/firebase.config.json dist/config/firebase.config.json",
-    "test": "jest dist/*.test.js",
+    "test": "jest dist",
     "create-block": "node dist/createBlock.js",
     "create-transaction": "node dist/scripts/createTransaction.js"
   },

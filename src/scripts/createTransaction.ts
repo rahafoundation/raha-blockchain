@@ -2,7 +2,7 @@
  * A script to create a transaction recording a new IPFS block Multihash in Stellar.
  */
 
-import RahaStellar, { getNewTestAccount } from '../RahaStellar';
+import StellarMemoHashes, { getNewTestAccount } from '../stellar';
 
 const modes = ['test', 'prod'];
 
@@ -33,7 +33,7 @@ async function main(args) {
     } else {
         secretKey = args[4];
     }
-    console.log(await new RahaStellar(isTest).createRahaBlockchainTransaction(multiHash, secretKey));
+    console.log(await new StellarMemoHashes(isTest).createRahaBlockchainTransaction(multiHash, secretKey));
 }
 
 

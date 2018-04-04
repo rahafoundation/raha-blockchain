@@ -8,10 +8,10 @@
  */
 
 import * as fs from 'fs';
-import { saveDataToIpfsAsFile } from '../RahaIpfs';
-import { getBlockchain } from '../RahaBlockchain';
-import { operationsCollectionFilters as filters, get, operationsCollection } from '../RahaFirestore';
-import { BLOCKCHAIN_VERSION_NO, Block, StellarMetadata, IpfsBlock, Operation, RequestInvite, Trust } from '../RahaSchema';
+import { saveDataToIpfsAsFile } from '../ipfs';
+import { getBlockchain } from '../blockchain';
+import { operationsCollectionFilters as filters, get, operationsCollection } from '../firestore';
+import { BLOCKCHAIN_VERSION_NO, Block, StellarMetadata, IpfsBlock, Operation, RequestInvite, Trust } from '../schema';
 
 /**
  * A map of functions that build the data component of Blockchain Operations from

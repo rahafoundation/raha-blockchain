@@ -1,5 +1,5 @@
-import { getBlockchain } from './RahaBlockchain';
-import { operationsCollectionFilters as filters, get, operationsCollection } from './RahaFirestore';
+import { getBlockchain } from './blockchain';
+import { operationsCollectionFilters as filters, get, operationsCollection } from './firestore';
 
 async function test() {
     console.log('starting');

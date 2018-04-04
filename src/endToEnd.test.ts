@@ -2,10 +2,10 @@ import { expect } from 'chai';
 import IPFS from 'ipfs';
 import StellarSdk from 'stellar-sdk';
 
-import RahaStellar, { getNewTestAccount } from "./RahaStellar";
-import { saveDataToIpfsAsFile } from "./RahaIpfs";
-import { getBlockchain } from './RahaBlockchain';
-import { IpfsBlock } from './RahaSchema';
+import StellarMemoHashes, { getNewTestAccount } from "./stellar";
+import { saveDataToIpfsAsFile } from "./ipfs";
+import { getBlockchain } from './blockchain';
+import { IpfsBlock } from './schema';
 
 /**
  * Test steps:
@@ -46,7 +46,7 @@ describe('An EndToEnd test for creating a new block in the blockchain.', functio
     });
 
     it('Should record the block\'s multihash in a transaction in Stellar.', async function() {
-        const stellar = new RahaStellar(true);
+        const stellar = new StellarMemoHashes(true);
         await stellar.createRahaBlockchainTransaction(expectedMultiHash, keyPair.secret());
         // Fail if this throws an error.
     });
