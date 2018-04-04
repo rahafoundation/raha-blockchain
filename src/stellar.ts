@@ -61,7 +61,7 @@ export async function getNewTestAccount() {
     return keyPair;
 }
 
-class Stellar {
+class StellarMemoHashes {
     useTestNetwork : boolean;
     horizonServer : StellarSdk.Server;
 
@@ -114,4 +114,4 @@ class Stellar {
     }
 }
 
-export default Stellar;
+export default StellarMemoHashes;
