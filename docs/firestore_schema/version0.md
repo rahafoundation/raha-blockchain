@@ -43,9 +43,9 @@ type Member {
     // The MID of the member this user requested an invite from
     requested_invite_from_mid: string,
     // The UID of the member this user requested an invite from
-    requested_invite_from_uid: [string][uid_of_requestee],
+    requested_invite_from_uid: string,
     // The URL of the invite video
-    video_url: [string][url_of_invite_video]
+    video_url: string
 }
 ```
 
