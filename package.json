@@ -1,10 +1,9 @@
 {
-  "name": "raha-blockchain",
+  "name": "@raha.io/blockchain",
   "version": "0.0.1",
   "description": "Blockchain scripts for Raha.",
   "author": "Raha Foundation",
   "license": "Apache-2.0",
-  "private": false,
   "dependencies": {
     "bs58": "^4.0.1",
     "buffer": "^5.1.0",
