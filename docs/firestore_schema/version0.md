@@ -4,8 +4,6 @@
 type Operation {
     // Schema version
     version: int,
-    // Has the operation been applied to the blockchain?
-    applied: boolean,
     // ISO-formatted datetime at which this operation was included in the blockchain
     block_at: string,
     // Sequence number of the block cointaining this operation
