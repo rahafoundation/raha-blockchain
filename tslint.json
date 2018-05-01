@@ -15,8 +15,6 @@
     "no-submodule-imports": false,
     // empty interfaces are nice to be explicit sometimes
     "no-empty-interface": false,
-    // multiple classes in file is useful for child components in React
-    "max-classes-per-file": false,
     // dev dependencies aren't implicit
     "no-implicit-dependencies": [true, "dev"],
     // too strict, not useful
