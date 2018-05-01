@@ -27,7 +27,7 @@ describe("An EndToEnd test for creating a new block in the blockchain.", () => {
     operations: []
   };
   const blockContents = JSON.stringify(block);
-  const expectedMultiHash = "QmbYbzo6s8KeirqciMx99EyitXvs2mYh1mWgpKhQLuXc3y";
+  const expectedMultiHash = "QmfAqQRetPYR9q3jRVADuyBYAbVDqiXjuCFgE9WSrkWXzB";
 
   let ipfsNode;
   let keyPair: StellarSdk.Keypair;
