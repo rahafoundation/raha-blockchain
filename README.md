@@ -9,8 +9,8 @@
     Or, you can use the browser console).
 1.  Follow the instructions below on pinning blocks to IPFS.
 1.  Record the new block in a Stellar transaction:
-    `yarn create-block [test|prod] [multiHash] [secretKey]`. Example usage:
-    `yarn create-block prod QmTcHdEZNrKB3zb5XSUeMUy83kfVJCbxcbRuFqDYdDxdsa $(openssl aes-256-cbc -d -in ~/.enc_secret_key)`
+    `yarn create-transaction [test|prod] [multiHash] [secretKey]`. Example usage:
+    `yarn create-transaction prod QmTcHdEZNrKB3zb5XSUeMUy83kfVJCbxcbRuFqDYdDxdsa $(openssl aes-256-cbc -d -in ~/.enc_secret_key)`
 
 ## Setting up gsutil
 
