@@ -6,7 +6,7 @@
 
 ### Enable blockchain versioning
 
-* added `prev_version_block` hashPtr to block schema
+* added `prev_version_hash` hashPtr to block schema
 * added `origin_created` datetime to block schema
 
 ### Update operation schema
