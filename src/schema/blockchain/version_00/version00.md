@@ -1,5 +1,7 @@
-# Version 0 schema
+# Version 00 schema
+
 ## Block schema
+
 ```
 {
    "sequence": [int][block_sequence_no], // 0-indexed
@@ -10,6 +12,7 @@
 ```
 
 ## Operation schema
+
 ```
 {
     "sequence": [int][operation_seqeuence_no], // 0-indexed
@@ -19,10 +22,13 @@
 ```
 
 ## Choices
+
 operation: `["CREATE_USER"]`
 
 ## Data objects
+
 ### CREATE_USER
+
 ```
 {
     "full_name": [string][full_name],
@@ -31,4 +37,3 @@ operation: `["CREATE_USER"]`
     "trust": [list(string)][user_names_of_trusted_users]
 }
 ```
-

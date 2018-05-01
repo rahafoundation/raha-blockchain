@@ -1,14 +1,14 @@
-// Version 1 schema
+// Version 01 schema
 
-type Multihash = string;
-type HashPointer = string;
-type UID = string;
-type Datetime = string;
+export type Multihash = string;
+export type HashPointer = string;
+export type Uid = string;
+export type Datetime = string;
 
 // Block schema
-interface Block {
+export interface Block {
   sequence: number; // 0-indexed
-  // The datetime at which the earliest version of this block was created.
+  // The ISO 8601-formatted datetime at which the earliest version of this block was created.
   origin_created: Datetime; // new
   version: 1;
   // Points to the same block in the previous version of the blockchain.
@@ -21,41 +21,41 @@ interface Block {
 
 // Operation schema
 
-enum OperationTypes {
+export enum OperationTypes {
   REQUEST_INVITE = "REQUEST_INVITE",
   TRUST = "TRUST"
 }
 
 interface OperationBase {
   sequence: number; // 0-indexed
-  creator_uid: UID; // new
+  creator_uid: Uid; // new
 }
 
 // Data objects
 
 // new
-interface RequestInviteData {
+export interface RequestInviteData {
   full_name: string;
-  // UID of user requesting invite from.
-  to_uid: UID;
+  // Uid of user requesting invite from.
+  to_uid: Uid;
   // Multihash of invite video.
   video_multihash: Multihash;
 }
 
 // new
-interface TrustData {
-  // UID of user to trust.
-  to_uid: UID;
+export interface TrustData {
+  // Uid of user to trust.
+  to_uid: Uid;
 }
 
-type RequestInviteOperation = OperationBase & {
+export type RequestInviteOperation = OperationBase & {
   op_code: OperationTypes.REQUEST_INVITE;
   data: RequestInviteData;
 };
 
-type TrustOperation = OperationBase & {
+export type TrustOperation = OperationBase & {
   op_code: OperationTypes.TRUST;
   data: TrustData;
 };
 
-type Operation = RequestInviteOperation | TrustOperation;
+export type Operation = RequestInviteOperation | TrustOperation;
