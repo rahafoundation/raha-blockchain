@@ -10,7 +10,7 @@ import {
   STELLAR_ENDPOINT,
   RAHA_IO_STELLAR_PUBLIC_KEY
 } from "./constants";
-import { BLOCKCHAIN_VERSION_NO, Block, StellarMetadata } from "./schema";
+import { BLOCKCHAIN_VERSION_NO, VirtualBlock, StellarMetadata } from "./schema";
 import RahaStellar, {
   getTransactionMetaFromTransaction,
   getBlockNameFromTransactionMeta,
@@ -50,14 +50,14 @@ function stellarTxToBlockMetaData(stellarTx): StellarMetadata | void {
 /**
  * Return metadata about all IPFS blocks in the Raha blockchain.
  */
-async function getBlockMetadata(account, isTest) {
+async function getBlockMetadata(account, isTest): Promise<StellarMetadata[]> {
   const transactions = await new RahaStellar(isTest).getTransactions(account);
   return transactions
     .map(stellarTxToBlockMetaData)
     .filter(x => x) as StellarMetadata[];
 }
 
-async function getBlockFromBlockMetadata(metadata): Promise<Block> {
+async function getBlockFromBlockMetadata(metadata): Promise<VirtualBlock> {
   return {
     metadata,
     data: await (await fetch(
@@ -86,9 +86,12 @@ function sortBlocks(blocks) {
 async function getBlockchain(
   account = RAHA_IO_STELLAR_PUBLIC_KEY,
   isTest = false
-): Promise<Block[]> {
-  const blockMetadata = await getBlockMetadata(account, isTest);
-  const blocks = await Promise.all(
+): Promise<VirtualBlock[]> {
+  const blockMetadata: StellarMetadata[] = await getBlockMetadata(
+    account,
+    isTest
+  );
+  const blocks: VirtualBlock[] = await Promise.all(
     blockMetadata.map(getBlockFromBlockMetadata)
   );
   return sortBlocks(filterBlocksByVersion(blocks));

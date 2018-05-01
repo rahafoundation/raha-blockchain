@@ -11,6 +11,7 @@
 
 import * as firebase from "firebase";
 import "firebase/firestore";
+import { Multihash, Uid } from "./schema/blockchain/version_01";
 
 const db = firebase
   // tslint:disable-next-line:no-var-requires
@@ -20,23 +21,28 @@ const db = firebase
 /**
  * Resolve a query on a Firestore collection.
  */
-async function get(collection: firebase.firestore.CollectionReference) {
+export async function get(collection: firebase.firestore.CollectionReference) {
   return (await collection.get()).docs;
 }
 
 /**
  * Return the Operations collection.
  */
-function operationsCollection() {
+export function operationsCollection() {
   return db.collection("operations");
 }
 
 /**
  * Filters that can be applied to an Firestore collection.
  */
-const operationsCollectionFilters = {
+export const operationsCollectionFilters = {
   applied: isApplied => collection =>
     collection.where("applied", "==", isApplied)
 };
 
-export { get, operationsCollectionFilters, operationsCollection };
+export async function getVideoMultiHashForUid(uid: Uid): Promise<Multihash> {
+  return (await db
+    .collection("uidToVideoMultiHashMap")
+    .doc(uid)
+    .get()).get("multiHash");
+}
