@@ -1,5 +1,5 @@
-import { Buffer } from 'buffer';
-import IPFS from 'ipfs';
+import { Buffer } from "buffer";
+import IPFS from "ipfs";
 
 /**
  * Add the given data to IPFS.
@@ -10,40 +10,46 @@ import IPFS from 'ipfs';
  * will likely be nowhere else on the network once the node is stopped
  * and the promise resolves.
  */
-async function saveDataToIpfsAsFile(filename, data, providedIpfsNode=undefined): Promise<string> {
-    const node = providedIpfsNode === undefined ? new IPFS() : providedIpfsNode;
+async function saveDataToIpfsAsFile(
+  filename,
+  data,
+  providedIpfsNode?
+): Promise<string> {
+  const node = providedIpfsNode === undefined ? new IPFS() : providedIpfsNode;
 
-    // If the IPFS node is already online, the 'ready' callback will not get triggered.
-    // Wrapping this in a promise ensures that we only add the file once.
-    await new Promise((resolve, reject) => {
-        node.on('ready', () => {
-            resolve();
-        });
-        node.on('error', (err) => {
-            reject(err);
-        });
-        if (node.isOnline()) {
-            resolve();
+  // If the IPFS node is already online, the 'ready' callback will not get triggered.
+  // Wrapping this in a promise ensures that we only add the file once.
+  await new Promise((resolve, reject) => {
+    node.on("ready", () => {
+      resolve();
+    });
+    node.on("error", err => {
+      reject(err);
+    });
+    if (node.isOnline()) {
+      resolve();
+    }
+  });
+
+  return await new Promise<Promise<string>>((resolve, reject) => {
+    node.files.add(
+      {
+        path: filename,
+        content: Buffer.from(data)
+      },
+      null,
+      (err, res) => {
+        if (err) {
+          reject(err);
         }
-    });
-
-    return await new Promise<Promise<string>>((resolve, reject) => {
-        node.files.add({
-            path: filename,
-            content: Buffer.from(data),
-        }, null, (err, res) => {
-            if (err) {
-                reject(err);
-            }
-            resolve(res[0].hash);
-            // Stop the node if we created it.
-            if (providedIpfsNode === undefined) {
-                node.stop();
-            }
-        });
-    });
+        resolve(res[0].hash);
+        // Stop the node if we created it.
+        if (providedIpfsNode === undefined) {
+          node.stop();
+        }
+      }
+    );
+  });
 }
 
-export {
-    saveDataToIpfsAsFile,
-};
+export { saveDataToIpfsAsFile };

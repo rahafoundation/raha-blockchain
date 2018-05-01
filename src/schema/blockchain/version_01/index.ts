@@ -12,7 +12,7 @@ export interface Block {
   origin_created: Datetime; // new
   version: 1;
   // Points to the same block in the previous version of the blockchain.
-  prev_version_block?: HashPointer; // new
+  prev_version_hash?: HashPointer; // new
   // Points to the previous block in the blockchain. null for first block.
   prev_hash: HashPointer | null;
   // Operations contained in the block.

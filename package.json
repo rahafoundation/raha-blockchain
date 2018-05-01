@@ -14,11 +14,14 @@
     "url": "^0.11.0"
   },
   "scripts": {
-    "use-prod-db": "cp src/config/firebase.prod.json src/config/firebase.config.json",
-    "use-test-db": "cp src/config/firebase.test.json src/config/firebase.config.json",
-    "build": "rm -rf dist && tsc && mkdir -p dist/config && cp src/config/firebase.config.json dist/config/firebase.config.json",
+    "use-prod-db":
+      "cp src/config/firebase.prod.json src/config/firebase.config.json",
+    "use-test-db":
+      "cp src/config/firebase.test.json src/config/firebase.config.json",
+    "build":
+      "rm -rf dist && tsc && mkdir -p dist/config && cp src/config/firebase.config.json dist/config/firebase.config.json",
     "test": "jest dist",
-    "create-block": "node dist/createBlock.js",
+    "create-block": "node dist/scripts/createBlock.js",
     "create-transaction": "node dist/scripts/createTransaction.js"
   },
   "devDependencies": {
@@ -29,6 +32,9 @@
     "@types/stellar-sdk": "^0.8.1",
     "chai": "^4.1.2",
     "jest": "^22.4.3",
+    "prettier": "^1.12.1",
+    "tslint": "^5.9.1",
+    "tslint-config-prettier": "^1.12.0",
     "typescript": "^2.7.2"
   }
 }

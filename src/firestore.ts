@@ -9,34 +9,34 @@
  * }
  */
 
-import * as firebase from 'firebase';
-import 'firebase/firestore';
+import * as firebase from "firebase";
+import "firebase/firestore";
 
-const db = firebase.initializeApp(require('./config/firebase.config.json')).firestore();
+const db = firebase
+  // tslint:disable-next-line:no-var-requires
+  .initializeApp(require("./config/firebase.config.json"))
+  .firestore();
 
 /**
  * Resolve a query on a Firestore collection.
  */
 async function get(collection: firebase.firestore.CollectionReference) {
-    return (await collection.get()).docs;
+  return (await collection.get()).docs;
 }
 
 /**
  * Return the Operations collection.
  */
 function operationsCollection() {
-    return db.collection('operations');
+  return db.collection("operations");
 }
 
 /**
  * Filters that can be applied to an Firestore collection.
  */
 const operationsCollectionFilters = {
-    applied: (isApplied) => (collection) => collection.where('applied', '==', isApplied),
+  applied: isApplied => collection =>
+    collection.where("applied", "==", isApplied)
 };
 
-export {
-    get,
-    operationsCollectionFilters,
-    operationsCollection,
-};
+export { get, operationsCollectionFilters, operationsCollection };
