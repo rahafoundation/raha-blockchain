@@ -1,6 +1,6 @@
 ## Notes
 
-* A user, Alice, can only TRUST another user if there exists a path of TRUST to Alice from a user, Bob, who become a member of the network in a prior block. Block 0 is exempt from this restriction.
+* A user, Alice, can only TRUST another user if there exists a path of TRUST to Alice from a user, Bob, who become a member of the network in a prior block.
 
 ## Changelog
 

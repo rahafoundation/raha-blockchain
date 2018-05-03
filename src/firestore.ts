@@ -11,7 +11,7 @@
 
 import * as firebase from "firebase";
 import "firebase/firestore";
-import { Multihash, Uid } from "./schema/blockchain/version_01";
+import { Hash, Uid } from "./schema/blockchain/version_01";
 
 const db = firebase
   // tslint:disable-next-line:no-var-requires
@@ -40,9 +40,9 @@ export const operationsCollectionFilters = {
     collection.where("applied", "==", isApplied)
 };
 
-export async function getVideoMultiHashForUid(uid: Uid): Promise<Multihash> {
+export async function getVideoHashForUid(uid: Uid): Promise<Hash> {
   return (await db
-    .collection("uidToVideoMultiHashMap")
+    .collection("uidToVideoHashMap")
     .doc(uid)
-    .get()).get("multiHash");
+    .get()).get("hash");
 }
