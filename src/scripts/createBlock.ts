@@ -7,14 +7,15 @@
  * node dist/createBlock.js > newBlock.json
  */
 
-import * as fs from "fs";
-import { saveDataToIpfsAsFile } from "../ipfs";
+import fs from "fs";
+import crypto from "crypto";
+
 import { getBlockchain } from "../blockchain";
 import {
   operationsCollectionFilters as filters,
   get,
   operationsCollection,
-  getVideoMultiHashForUid
+  getVideoHashForUid
 } from "../firestore";
 import {
   BLOCKCHAIN_VERSION_NO,
@@ -28,6 +29,7 @@ import {
   TrustData,
   Uid
 } from "../schema/blockchain/version_01";
+import { saveDataToIpfsAsFile } from "../ipfs";
 
 const BLOCK_FORMAT_SPACES = 2;
 
@@ -41,7 +43,7 @@ const blockchainOpDataBuilders = {
     return {
       full_name: opData.full_name,
       to_uid: opData.to_uid,
-      video_multihash: await getVideoMultiHashForUid(firestoreOp.get(
+      video_hash: await getVideoHashForUid(firestoreOp.get(
         "creator_uid"
       ) as Uid)
     };
@@ -125,7 +127,7 @@ function getNextBlockSequenceNumber(blockchain: VirtualBlock[]): number {
  */
 function getLastBlockHash(blockchain: VirtualBlock[]): string {
   if (blockchain.length > 0) {
-    return blockchain[blockchain.length - 1].metadata.multiHash;
+    return blockchain[blockchain.length - 1].metadata.hash;
   } else {
     return "no_previous_blocks_found";
   }
@@ -186,6 +188,15 @@ async function writeBlockDataToLocalFile(blockData, multiHash, formattedData) {
 }
 
 /**
+ * Return hex-encoded sha256 hash of formattedData.
+ */
+function getBlockHash(formattedData: string): string {
+  const hash = crypto.createHash("sha256");
+  hash.update(formattedData);
+  return hash.digest("hex");
+}
+
+/**
  * Create a Block with all valid unapplied operations from Firestore.
  * Note: The multiHash is a valid IPFS MultiHash constructed by adding the IpfsBlock to IPFS,
  * but there will likely be no node hosting that file.
@@ -196,12 +207,16 @@ async function createBlock(): Promise<VirtualBlock> {
     const formattedData = formatData(data);
     const multiHash = await saveDataToIpfsAsFile(
       `block-${data.sequence}`,
-      formatData
+      formattedData
     );
-    await writeBlockDataToLocalFile(data, multiHash, formattedData);
+    const blockHash: string = getBlockHash(formattedData);
+    console.log(
+      `Block hash: ${blockHash}. Block IPFS multihash: ${multiHash}.`
+    );
+    await writeBlockDataToLocalFile(data, blockHash, formattedData);
     return {
       metadata: {
-        multiHash
+        hash: blockHash
       },
       data
     };

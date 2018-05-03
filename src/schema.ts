@@ -8,7 +8,7 @@ export const BLOCKCHAIN_VERSION_NO = 1;
  * information in an external trusted blockchain.
  */
 export interface StellarMetadata {
-  multiHash: string;
+  hash: string;
   timeStr?: string;
   stellarTxId?: string;
 }

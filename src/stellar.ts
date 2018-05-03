@@ -32,7 +32,7 @@ export function getBlockNameFromTransactionMeta(transactionMeta) {
  * Legacy method for blocks set using only managed data with no memo hash.
  * See note on TransactionMetadata above.
  */
-export function getMultiHashFromTransactionMeta(transactionMeta) {
+export function getHashFromTransactionMeta(transactionMeta) {
   const charCode = getFirstOperationAttributesFromTransactionMeta(
     transactionMeta
   ).dataValue;
@@ -51,6 +51,9 @@ export function getTransactionMetaFromTransaction(stellarTx) {
   );
 }
 
+/**
+ * TODO: On change to raw sha-256 hashes, we shouldn't need to decode and slice multihash bytes.
+ */
 export function sha256MultiHashToMemo(base58MultiHash: string) {
   const multiHashBuffer = bs58.decode(base58MultiHash);
   const multiHashBytes = Uint8Array.from(multiHashBuffer);

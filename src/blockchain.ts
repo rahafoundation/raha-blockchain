@@ -14,13 +14,14 @@ import { BLOCKCHAIN_VERSION_NO, VirtualBlock, StellarMetadata } from "./schema";
 import RahaStellar, {
   getTransactionMetaFromTransaction,
   getBlockNameFromTransactionMeta,
-  getMultiHashFromTransactionMeta
+  getHashFromTransactionMeta
 } from "./stellar";
 
 /**
  * A utility function to convert a Raha transaction memo (stored on Stellar) to a base58-encoded IPFS MultiHash.
+ * TODO: In V1, these will be will be raw base-64 hashes.
  */
-function memoToMultiHash(memoHashB64) {
+function memoToHash(memoHashB64) {
   // Source: https://github.com/node-browser-compat/atob/blob/master/node-atob.js.
   const memoHashBytes = Buffer.from(memoHashB64, "base64").toString("binary");
   const byteVals = memoHashBytes.split("").map(c => c.charCodeAt(0));
@@ -41,10 +42,10 @@ function stellarTxToBlockMetaData(stellarTx): StellarMetadata | void {
   }
   const stellarTxId = stellarTx.id;
   const timeStr = stellarTx.created_at;
-  const multiHash = stellarTx.memo
-    ? memoToMultiHash(stellarTx.memo)
-    : getMultiHashFromTransactionMeta(transactionMeta);
-  return { multiHash, stellarTxId, timeStr };
+  const hash = stellarTx.memo
+    ? memoToHash(stellarTx.memo)
+    : getHashFromTransactionMeta(transactionMeta);
+  return { hash, stellarTxId, timeStr };
 }
 
 /**
@@ -57,12 +58,12 @@ async function getBlockMetadata(account, isTest): Promise<StellarMetadata[]> {
     .filter(x => x) as StellarMetadata[];
 }
 
-async function getBlockFromBlockMetadata(metadata): Promise<VirtualBlock> {
+async function getBlockFromBlockMetadata(
+  metadata: StellarMetadata
+): Promise<VirtualBlock> {
   return {
     metadata,
-    data: await (await fetch(
-      url.resolve(IPFS_ENDPOINT, metadata.multiHash)
-    )).json()
+    data: await (await fetch(url.resolve(IPFS_ENDPOINT, metadata.hash))).json()
   };
 }
 
