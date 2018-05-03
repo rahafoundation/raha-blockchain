@@ -6,7 +6,7 @@ export const BLOCKCHAIN_VERSION_NO = 1;
  * Metadata we care about from the Stellar transaction.
  */
 export interface StellarMetadata {
-  multiHash: string;
+  hash: string;
   timeStr?: string;
   stellarTxId?: string;
 }

@@ -1,7 +1,8 @@
 // Version 01 schema
 
-export type Multihash = string;
-export type HashPointer = string;
+// Hex-encoded sha-256 hash
+export type Hash = string;
+export type HashPointer = Hash;
 export type Uid = string;
 export type Datetime = string;
 
@@ -28,7 +29,10 @@ export enum OperationTypes {
 }
 
 interface OperationBase {
-  sequence: number; // 0-indexed
+  // global sequence number. Operations maintain sequence numbers across blockchain versions,
+  // so if an operation becomes multiple operations in a later version of the
+  // blockchain, all those operations will have the same sequence number.
+  sequence: number;
   creator_uid: Uid; // new
 }
 
@@ -39,8 +43,8 @@ export interface RequestInviteData {
   full_name: string;
   // Uid of user requesting invite from.
   to_uid: Uid;
-  // Multihash of invite video.
-  video_multihash: Multihash;
+  // Hash of invite video.
+  video_hash: Hash;
 }
 
 // new

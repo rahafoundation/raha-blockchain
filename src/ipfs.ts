@@ -11,8 +11,8 @@ import IPFS from "ipfs";
  * and the promise resolves.
  */
 async function saveDataToIpfsAsFile(
-  filename,
-  data,
+  filename: string,
+  data: string,
   providedIpfsNode?
 ): Promise<string> {
   const node = providedIpfsNode === undefined ? new IPFS() : providedIpfsNode;

@@ -62,7 +62,7 @@ describe("An EndToEnd test for creating a new block in the blockchain.", () => {
     const blockchain = await getBlockchain(keyPair.publicKey(), true);
     expect(blockchain.length).to.equal(1);
     const blockMetadata = blockchain[0].metadata;
-    expect(blockMetadata.multiHash).to.equal(expectedMultiHash);
+    expect(blockMetadata.hash).to.equal(expectedMultiHash);
     const blockData = blockchain[0].data;
     for (const key in Object.keys(block)) {
       if (block.hasOwnProperty(key)) {
