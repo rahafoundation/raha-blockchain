@@ -14,12 +14,9 @@
     "url": "^0.11.0"
   },
   "scripts": {
-    "use-prod-db":
-      "cp src/config/firebase.prod.json src/config/firebase.config.json",
-    "use-test-db":
-      "cp src/config/firebase.test.json src/config/firebase.config.json",
-    "build":
-      "rm -rf dist && tsc && mkdir -p dist/config && cp src/config/firebase.config.json dist/config/firebase.config.json",
+    "use-prod-config": "cp src/config/prod.config.ts src/config/index.ts",
+    "use-test-config": "cp src/config/test.config.ts src/config/index.ts",
+    "build": "rm -rf dist && tsc",
     "test": "jest dist",
     "create-block": "node dist/scripts/createBlock.js",
     "create-transaction": "node dist/scripts/createTransaction.js"

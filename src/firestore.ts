@@ -12,11 +12,9 @@
 import * as firebase from "firebase";
 import "firebase/firestore";
 import { Hash, Uid } from "./schema/blockchain/version_01";
+import config from "./config/";
 
-const db = firebase
-  // tslint:disable-next-line:no-var-requires
-  .initializeApp(require("./config/firebase.config.json"))
-  .firestore();
+const db = firebase.initializeApp(config.firebase).firestore();
 
 /**
  * Resolve a query on a Firestore collection.
