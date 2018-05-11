@@ -8,9 +8,10 @@ export type Datetime = string;
 // Block schema
 export interface Block {
   sequence: number; // 0-indexed
-  // The ISO 8601-formatted datetime at which the earliest version of this block was created.
-  origin_created: Datetime; // new
   version: 1;
+  // The ISO 8601-formatted datetime at which the earliest version of this block was created.
+  // If this is the first version of this block, see Stellar transaction timestamp.
+  origin_created?: Datetime; // new
   // Points to the same block in the previous version of the blockchain.
   prev_version_hash?: HashPointer; // new
   // Points to the previous block in the blockchain. null for first block.

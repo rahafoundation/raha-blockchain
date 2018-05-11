@@ -5,7 +5,7 @@ import StellarSdk from "stellar-sdk";
 import StellarMemoHashes, { getNewTestAccount } from "./stellar";
 import { saveDataToIpfsAsFile } from "./ipfs";
 import { getBlockchain } from "./blockchain";
-import { IpfsBlock } from "./schema";
+import { Block } from "./schema/blockchain/version_01";
 
 /**
  * Test steps:
@@ -20,14 +20,14 @@ import { IpfsBlock } from "./schema";
 describe("An EndToEnd test for creating a new block in the blockchain.", () => {
   jest.setTimeout(30000);
 
-  const block: IpfsBlock = {
+  const block: Block = {
     sequence: 3,
-    prev_hash: undefined,
+    prev_hash: null,
     version: 1,
     operations: []
   };
   const blockContents = JSON.stringify(block);
-  const expectedMultiHash = "QmbYbzo6s8KeirqciMx99EyitXvs2mYh1mWgpKhQLuXc3y";
+  const expectedMultiHash = "QmfAqQRetPYR9q3jRVADuyBYAbVDqiXjuCFgE9WSrkWXzB";
 
   let ipfsNode;
   let keyPair: StellarSdk.Keypair;

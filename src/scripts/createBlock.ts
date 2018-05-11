@@ -13,30 +13,41 @@ import { getBlockchain } from "../blockchain";
 import {
   operationsCollectionFilters as filters,
   get,
-  operationsCollection
+  operationsCollection,
+  getVideoMultiHashForUid
 } from "../firestore";
 import {
   BLOCKCHAIN_VERSION_NO,
-  Block,
-  StellarMetadata,
-  IpfsBlock,
-  Operation,
-  RequestInvite,
-  Trust
+  VirtualBlock,
+  StellarMetadata
 } from "../schema";
+import {
+  Block,
+  Operation,
+  RequestInviteData,
+  TrustData,
+  Uid
+} from "../schema/blockchain/version_01";
+
+const BLOCK_FORMAT_SPACES = 2;
 
 /**
  * A map of functions that build the data component of Blockchain Operations from
  * the data component of Firestore Operations.
  */
 const blockchainOpDataBuilders = {
-  REQUEST_INVITE: (firestoreOpData): RequestInvite => ({
-    full_name: firestoreOpData.full_name,
-    to_mid: firestoreOpData.to_mid,
-    video_url: firestoreOpData.video_url
-  }),
-  TRUST: (firestoreOpData): Trust => ({
-    to_mid: firestoreOpData.to_mid
+  REQUEST_INVITE: async (firestoreOp): Promise<RequestInviteData> => {
+    const opData = firestoreOp.get("data");
+    return {
+      full_name: opData.full_name,
+      to_uid: opData.to_uid,
+      video_multihash: await getVideoMultiHashForUid(firestoreOp.get(
+        "creator_uid"
+      ) as Uid)
+    };
+  },
+  TRUST: async (firestoreOp): Promise<TrustData> => ({
+    to_uid: firestoreOp.get("data").to_uid
   })
 };
 
@@ -63,10 +74,10 @@ function validateBlockchainOp(blockchainOp) {
 /**
  * Build a Blockchain Operation from a Firestore Operation. Returns undefined if the operation is invalid.
  */
-function buildBlockchainOpFromFirestoreOp(
+async function buildBlockchainOpFromFirestoreOp(
   firestoreOp: firebase.firestore.DocumentSnapshot,
   index: number
-): Operation | undefined {
+): Promise<Operation | undefined> {
   const opCode = firestoreOp.get("op_code");
 
   if (!(opCode in blockchainOpDataBuilders)) {
@@ -74,11 +85,11 @@ function buildBlockchainOpFromFirestoreOp(
   }
   const operationDataBuilder = blockchainOpDataBuilders[opCode];
 
-  const blockchainOp = {
+  const blockchainOp: Operation = {
     sequence: index,
     op_code: opCode,
-    creator_mid: firestoreOp.get("creator_mid"),
-    data: operationDataBuilder(firestoreOp.get("data"))
+    creator_uid: firestoreOp.get("creator_uid"),
+    data: await operationDataBuilder(firestoreOp)
   };
   return validateBlockchainOp(blockchainOp) ? blockchainOp : undefined;
 }
@@ -92,8 +103,8 @@ async function getBlockOperations(): Promise<Operation[]> {
   );
 
   let i = 0;
-  const blockchainOperations = unappliedFirestoreOps.map(op =>
-    buildBlockchainOpFromFirestoreOp(op, i++)
+  const blockchainOperations = await Promise.all(
+    unappliedFirestoreOps.map(op => buildBlockchainOpFromFirestoreOp(op, i++))
   );
   return blockchainOperations.filter(x => x) as Operation[];
 }
@@ -101,21 +112,30 @@ async function getBlockOperations(): Promise<Operation[]> {
 /**
  * Assumes the blockchain list is sorted by sequence number. Returns the last sequence number + 1.
  */
-function getNextBlockSequenceNumber(blockchain: Block[]): number {
-  return blockchain[blockchain.length - 1].data.sequence + 1;
+function getNextBlockSequenceNumber(blockchain: VirtualBlock[]): number {
+  if (blockchain.length > 0) {
+    return blockchain[blockchain.length - 1].data.sequence + 1;
+  } else {
+    return 0;
+  }
 }
 
 /**
  * Assumes the blockchain list is sorted by sequence number. Returns the hash of the last block.
  */
-function getLastBlockHash(blockchain: Block[]): string {
-  return blockchain[blockchain.length - 1].metadata.multiHash;
+function getLastBlockHash(blockchain: VirtualBlock[]): string {
+  if (blockchain.length > 0) {
+    return blockchain[blockchain.length - 1].metadata.multiHash;
+  } else {
+    return "no_previous_blocks_found";
+  }
 }
 
 /**
  * Create an IpfsBlock with all valid unapplied operations from Firestore.
  */
-async function createIpfsBlock(): Promise<IpfsBlock> {
+async function createIpfsBlock(): Promise<Block> {
+  console.log("Creating IPFS block.");
   // getBlockchain and getBlockOperations in parallel.
   const [blockchain, blockOperations] = await Promise.all([
     getBlockchain(),
@@ -128,9 +148,7 @@ async function createIpfsBlock(): Promise<IpfsBlock> {
 
   return {
     sequence: getNextBlockSequenceNumber(blockchain),
-    origin_created: undefined,
     version: BLOCKCHAIN_VERSION_NO,
-    prev_version_block: undefined,
     prev_hash: getLastBlockHash(blockchain),
     operations: validOperations
   };
@@ -140,7 +158,8 @@ async function createIpfsBlock(): Promise<IpfsBlock> {
  * Return Block as string.
  */
 function formatData(data) {
-  return JSON.stringify(data, null, 4);
+  console.log("Formatting data.");
+  return JSON.stringify(data, null, BLOCK_FORMAT_SPACES);
 }
 
 /**
@@ -171,7 +190,7 @@ async function writeBlockDataToLocalFile(blockData, multiHash, formattedData) {
  * Note: The multiHash is a valid IPFS MultiHash constructed by adding the IpfsBlock to IPFS,
  * but there will likely be no node hosting that file.
  */
-async function createBlock(): Promise<Block> {
+async function createBlock(): Promise<VirtualBlock> {
   try {
     const data = await createIpfsBlock();
     const formattedData = formatData(data);
