@@ -41,7 +41,6 @@ const blockchainOpDataBuilders = {
   REQUEST_INVITE: async (firestoreOp): Promise<RequestInviteData> => {
     const opData = firestoreOp.get("data");
     return {
-      full_name: opData.full_name,
       to_uid: opData.to_uid,
       video_hash: await getVideoHashForUid(firestoreOp.get(
         "creator_uid"
