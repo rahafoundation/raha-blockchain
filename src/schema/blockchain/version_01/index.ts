@@ -40,7 +40,6 @@ interface OperationBase {
 
 // new
 export interface RequestInviteData {
-  full_name: string;
   // Uid of user requesting invite from.
   to_uid: Uid;
   // Hash of invite video.
