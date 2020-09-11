@@ -1,3 +1,7 @@
+# DEPRECATED
+
+This repo is inactive and not being monitored for security and functionality updates.
+
 # Adding a block to the blockchain
 
 1.  Install dependencies: `yarn`
